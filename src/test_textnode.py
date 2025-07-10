@@ -213,6 +213,75 @@ class TestTextNode(unittest.TestCase):
             ],
             new_nodes,
         )
+    
+    def test_markdown_to_blocks(self):
+        md = """
+This is **bolded** paragraph
+
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
+
+- This is a list
+- with items
+"""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "This is **bolded** paragraph",
+                "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
+                "- This is a list\n- with items",
+            ],
+        )
+    
+    def test_markdown_to_blocks_newlines(self):
+        md = """
+This is **bolded** paragraph
+
+
+
+
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
+
+- This is a list
+- with items
+"""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "This is **bolded** paragraph",
+                "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
+                "- This is a list\n- with items",
+            ],
+        )
+    
+    def test_block_to_block_types(self):
+        block = "# heading"
+        self.assertEqual(block_to_block_type(block), BlockType.HEAD)
+        block = "## heading2"
+        self.assertEqual(block_to_block_type(block), BlockType.HEAD)
+        block = "```\ncode\n```"
+        self.assertEqual(block_to_block_type(block), BlockType.CODE)
+        block = ">line\n>second line"
+        self.assertEqual(block_to_block_type(block), BlockType.QUOTE)
+        block = "- first item\n- second item"
+        self.assertEqual(block_to_block_type(block), BlockType.UNORDERED)
+        block = "-first paragraph\n-second paragraph"
+        self.assertEqual(block_to_block_type(block), BlockType.PARAGRAPH)
+        block = "1. first item\n2. second item"
+        self.assertEqual(block_to_block_type(block), BlockType.ORDERED)
+        block = "1.first paragraph\n2.second paragraph"
+        self.assertEqual(block_to_block_type(block), BlockType.PARAGRAPH)
+        block = "paragraph"
+        self.assertEqual(block_to_block_type(block), BlockType.PARAGRAPH)
+        block = "#weird"
+        self.assertEqual(block_to_block_type(block), BlockType.PARAGRAPH)
+        block = "#heading# heading"
+        self.assertEqual(block_to_block_type(block), BlockType.PARAGRAPH)
+        block = "tests# tests"
+        self.assertEqual(block_to_block_type(block), BlockType.PARAGRAPH)
 
 if __name__ == "__main__":
     unittest.main()

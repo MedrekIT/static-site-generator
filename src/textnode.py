@@ -10,6 +10,14 @@ class TextType(Enum):
     LINK = 'link'
     IMAGE = 'image'
 
+class BlockType(Enum):
+    PARAGRAPH  = 'paragraph'
+    HEAD = 'heading'
+    CODE = 'code'
+    QUOTE = 'quote'
+    UNORDERED = 'unordered_list'
+    ORDERED = 'ordered_list'
+
 class TextNode:
     def __init__(self, text, text_type: TextType, url=None):
         self.text = text
@@ -131,3 +139,30 @@ def text_to_textnodes(text):
             ), '_', TextType.ITALIC
         ), '**', TextType.BOLD
     )
+
+def markdown_to_blocks(markdown):
+    md_blocks = markdown.split("\n\n")
+    md_no_whitespace = list(map(lambda block: block.strip(), md_blocks))
+    md_clean = list(filter(lambda block: block != '', md_no_whitespace))
+    return md_clean
+
+def block_to_block_type(md_block):
+    lines = md_block.split("\n")
+    if re.match(r"(^#+ ).+", md_block): return BlockType.HEAD
+    if len(lines) > 1 and re.match(r"(^```)", lines[0]) and re.match(r"```$", lines[-1]): return BlockType.CODE
+    if re.match(r"(^>).+", md_block):
+        for line in lines:
+            if not re.match(r"(^>).+", line):
+                return BlockType.PARAGRAPH
+        return BlockType.QUOTE
+    if re.match(r"(^- ).+", md_block):
+        for line in lines:
+            if not re.match(r"(^- ).+", line):
+                return BlockType.PARAGRAPH
+        return BlockType.UNORDERED
+    if re.match(r"(^1. ).+", md_block):
+        for i, line  in enumerate(lines, start=1):
+            if not re.match(rf"(^{i}. ).+", line):
+                return BlockType.PARAGRAPH
+        return BlockType.ORDERED
+    return BlockType.PARAGRAPH
