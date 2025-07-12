@@ -155,9 +155,9 @@ def block_to_block_type(md_block):
     lines = md_block.split("\n")
     if re.match(r"(^#+ ).+", md_block): return BlockType.HEAD
     if len(lines) > 1 and re.match(r"(^```)", lines[0]) and re.match(r"```$", lines[-1]): return BlockType.CODE
-    if re.match(r"(^>).+", md_block):
+    if re.match(r"(^>)", md_block):
         for line in lines:
-            if not re.match(r"(^>).+", line):
+            if not re.match(r"(^>)", line):
                 return BlockType.PARAGRAPH
         return BlockType.QUOTE
     if re.match(r"(^- ).+", md_block):
@@ -189,7 +189,6 @@ def markdown_to_html_node(markdown):
     for block in md_blocks:
         html_node = block_to_html(block)
         children.append(html_node)
-    
     return ParentNode("div", children)
 
 def block_to_html(block):
