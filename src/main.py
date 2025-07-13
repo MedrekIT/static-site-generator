@@ -3,4 +3,5 @@ from htmlnode import *
 from generate_site import *
 
 if __name__ == '__main__':
-    generate_page("./content/index.md", "./template.html", "./public/index.html")
+    static_configuration()
+    generate_page_recursive("./content", "./template.html", "./public")
